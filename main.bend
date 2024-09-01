@@ -1,8 +1,16 @@
-object Game { board, white_turn }
-
+empty = 0
+white = 1
+black = 2
 board_size = 8
-white = 0
-black = 1
+
+# TODO: Why can't I just do this?
+# I get the error: Non-exhaustive pattern matching rule. Default case of number type not covered.
+# last_row_index = board_size - 1
+# last_position_index = (board_size * board_size) - 1
+# white_starting_position = last_position_index - board_size + 1
+last_row_index = 7
+last_position_index = 63
+white_starting_position = 56
 
 # Board Map positions
 #    y0 y1 y2 y3 y4 y5 y6 y7
@@ -17,19 +25,39 @@ black = 1
 def get_position_index(x, y):
   return x*board_size + y
 
+def get_initial_position_value(position):
+  if position < board_size:
+    return black
+  else:
+    if position >= white_starting_position:
+      return white
+    else:
+      return empty
+
 def get_initial_board():
-  return { 
-    0: white, 1: white, 2: white, 3: white, 4: white, 5: white, 6: white, 7: white,
-    get_position_index(7, 0): black,
-    get_position_index(7, 1): black,
-    get_position_index(7, 2): black,
-    get_position_index(7, 3): black,
-    get_position_index(7, 4): black,
-    get_position_index(7, 5): black,
-    get_position_index(7, 6): black,
-    get_position_index(7, 7): black,
-  }
+  bend position = 0, board = {}:
+    when position <= last_position_index:
+      board[position] = get_initial_position_value(position)
+      return fork(position + 1, board)
+    else:
+      return board
+
+def get_pieces(board, turn):
+  bend position = 0, board:
+    when position <= last_position_index:
+      if (board[position] == turn):
+        pieces = List/Cons(position, fork(position + 1, board)) 
+      else:
+        pieces = fork(position + 1, board)
+    else:
+      pieces = List/Nil
+  return pieces
+
+def get_possible_moves(board, turn):
+  pieces = get_pieces(board, turn)
+  return pieces
 
 def main():
   board = get_initial_board()
-  return board[get_position_index(4, 0)]
+  possible_moves = get_possible_moves(board, white)
+  return possible_moves
