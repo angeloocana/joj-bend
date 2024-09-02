@@ -101,7 +101,15 @@ def get_nearby_positions(position):
   ]
   return [p for p in positions if valid_position(p)]
 
-# def get_possible_moves_for_piece(board, piece):
+def empty_position(board, position):
+  if board[position] == empty:
+    return 1
+  else:
+    return 0
+
+def get_possible_moves_for_piece(board, piece):
+  nearby_positions = get_nearby_positions(piece)
+  return [p for p in nearby_positions if empty_position(board, p)]
 
 def get_possible_moves(board, turn):
   pieces = get_pieces(board, turn)
@@ -110,7 +118,7 @@ def get_possible_moves(board, turn):
   fold pieces with pieces_and_possible_moves:
     case List/Cons:
       piece = pieces.head
-      possible_moves = get_nearby_positions(piece)
+      possible_moves = get_possible_moves_for_piece(board, piece)
       return pieces.tail(List/Cons((piece, possible_moves), pieces_and_possible_moves))
     case List/Nil:
       return pieces_and_possible_moves
